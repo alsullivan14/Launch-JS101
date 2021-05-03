@@ -8,9 +8,9 @@ const SQUARE_FIVE = '5';
 const FIRST_MOVE = ["player", "computer", "random"];
 const PLAY_AGAIN_RESPONSES = ["yes", "Yes", "YES", "no", "No", "NO"];
 const WINNING_LINES = [
-  [1, 2, 3], [4, 5, 6], [7, 8, 9], // rows
-  [1, 4, 7], [2, 5, 8], [3, 6, 9], // columns
-  [1, 5, 9], [3, 5, 7]             // diagonals
+  [1, 2, 3], [4, 5, 6], [7, 8, 9],
+  [1, 4, 7], [2, 5, 8], [3, 6, 9],
+  [1, 5, 9], [3, 5, 7]             
 ];
 
 function prompt(msg) {
@@ -92,7 +92,7 @@ function computerChoosesSquare(board) {
 
   let offense = findAtRiskSquare(board, COMPUTER_MARKER);
   let defense = findAtRiskSquare(board, HUMAN_MARKER);
-  let squareFive = emptySquareFive(board); //FIX THIS NEXT;
+  let squareFive = emptySquareFive(board);
   square = offense || defense || squareFive;
 
   let randomSquare = Math.floor(Math.random() * emptySquares(board).length);
