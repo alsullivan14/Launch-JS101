@@ -6,19 +6,23 @@ const COMPUTER_MARKER = 'O';
 const WINNING_SCORE = 5;
 const SQUARE_FIVE = '5';
 const FIRST_MOVE = ["player", "computer", "random"];
-const PLAY_AGAIN_RESPONSES = ["yes", "Yes", "YES", "no", "No", "NO"];
+const PLAY_AGAIN_RESPONSES = ["yes", "no"];
 const WINNING_LINES = [
   [1, 2, 3], [4, 5, 6], [7, 8, 9],
   [1, 4, 7], [2, 5, 8], [3, 6, 9],
-  [1, 5, 9], [3, 5, 7]             
+  [1, 5, 9], [3, 5, 7]
 ];
 
 function prompt(msg) {
   console.log(`=> ${msg}`);
 }
 
+function clearScreen() {
+  console.clear();
+}
+
 function displayBoard(board) {
-  //console.clear();
+  clearScreen();
   console.log(`You are ${HUMAN_MARKER}. Computer is ${COMPUTER_MARKER}`);
   console.log('');
   console.log('     |     |');
@@ -39,13 +43,16 @@ function chooseFirstMove() {
   let move;
   prompt(`Who moves first? ${FIRST_MOVE[0]}, ${FIRST_MOVE[1]} or ${FIRST_MOVE[2]}`);
   move = readline.question();
-  while (!FIRST_MOVE.includes(move)) {
+  let firstLetter = FIRST_MOVE.map(choice => choice[0]);
+  while (!(FIRST_MOVE.includes(move) || firstLetter.includes(move[0]))) {
     prompt("Sorry, that's not a valid choice.");
     prompt(`Who moves first? ${FIRST_MOVE[0]}, ${FIRST_MOVE[1]} or ${FIRST_MOVE[2]}`);
     move = readline.question();
   }
-  if (move === 'random') {
+  if (move === 'random' || move === 'r') {
     move = FIRST_MOVE[Math.floor(Math.random() * 2)];
+  } else if (move === "p" || move === "c") {
+    move = move === "p" ? "player" : "computer";
   }
   return move;
 }
@@ -118,7 +125,6 @@ function emptySquareFive(board) {
   return null;
 }
 
-
 function someoneWon(board) {
   return !!detectWinner(board);
 }
@@ -182,6 +188,33 @@ function initializeScore() {
   return score;
 }
 
+function displayScore(playerScore, computerScore) {
+  console.log(`Current score is Player: ${playerScore} | Computer: ${computerScore}`);
+  if (playerScore === WINNING_SCORE || computerScore === WINNING_SCORE) {
+    console.log(`------> The GRAND WINNER of this match is ${playerScore === WINNING_SCORE ? "Player" : "Computer"}!! <------`);
+  }
+}
+
+function playSingleRound(board, currentPlayer) {
+  while (true) {
+    displayBoard(board);
+    chooseSquare(board, currentPlayer);
+    currentPlayer = alternatePlayer(currentPlayer);
+    if (someoneWon(board) || boardFull(board)) break;
+  }
+}
+
+function askToPlayAgain() {
+  let response;
+  prompt('Play again?');
+  response = readline.question().toLowerCase();
+  while (!PLAY_AGAIN_RESPONSES.includes(response)) {
+    prompt("That's not a valid option. Please enter 'yes' or 'no': ");
+    response = readline.question().toLowerCase();
+  }
+  return response;
+}
+
 while (true) {
 
   let score = initializeScore();
@@ -191,13 +224,7 @@ while (true) {
     let board = initializeBoard();
     let currentPlayer = chooseFirstMove();
 
-
-    while (true) {
-      displayBoard(board);
-      chooseSquare(board, currentPlayer);
-      currentPlayer = alternatePlayer(currentPlayer);
-      if (someoneWon(board) || boardFull(board)) break;
-    }
+    playSingleRound(board, currentPlayer);
 
     displayBoard(board);
 
@@ -212,16 +239,11 @@ while (true) {
       prompt("It's a tie!");
     }
 
-    console.log(`Current score is Player: ${score.player} | Computer: ${score.computer}`);
-    if (score.player === WINNING_SCORE || score.computer === WINNING_SCORE) {
-      console.log(`------> The GRAND WINNER of this match is ${score.player === WINNING_SCORE ? "Player" : "Computer"}!! <------`);
-    }
-    prompt('Play again?');
-    let answer = readline.question().toLowerCase();
-    if (!PLAY_AGAIN_RESPONSES.includes(answer)) {
-      prompt("That's not a valid option. Please choose 'Yes' or 'No'");
-      answer = readline.question().toLowerCase();
-    } else if (answer[0] !== "y") break;
+    displayScore(score.player, score.computer);
+
+    let answer = askToPlayAgain();
+    if (['n', 'no'].includes(answer)) break;
+
   }
   prompt('Thanks for playing Tic Tac Toe!');
   break;
